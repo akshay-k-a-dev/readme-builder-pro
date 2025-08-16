@@ -22,7 +22,6 @@ interface ProjectData {
   author: string;
   repository: string;
   liveDemo: string;
-  apiKey: string;
 }
 
 const ReadmeGenerator = () => {
@@ -37,7 +36,6 @@ const ReadmeGenerator = () => {
     author: "",
     repository: "",
     liveDemo: "",
-    apiKey: localStorage.getItem("groq-api-key") || "",
   });
 
   const [generatedReadme, setGeneratedReadme] = useState("");
@@ -95,10 +93,12 @@ const ReadmeGenerator = () => {
   };
 
   const generateReadme = async () => {
-    if (!projectData.apiKey) {
+    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+    
+    if (!apiKey) {
       toast({
-        title: "API Key Required",
-        description: "Please enter your Groq API key to generate README",
+        title: "Configuration Error",
+        description: "Groq API key not found. Please contact the administrator.",
         variant: "destructive",
       });
       return;
@@ -114,7 +114,6 @@ const ReadmeGenerator = () => {
     }
 
     setIsGenerating(true);
-    localStorage.setItem("groq-api-key", projectData.apiKey);
 
     const prompt = `Create a comprehensive, professional README.md file for a project with the following details:
 
@@ -145,7 +144,7 @@ Make it visually appealing with proper markdown formatting, emojis, and clear se
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${projectData.apiKey}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -256,30 +255,6 @@ Make it visually appealing with proper markdown formatting, emojis, and clear se
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-4">
-                    <div className="flex items-start gap-2">
-                      <div className="h-4 w-4 bg-warning rounded-full mt-0.5 flex-shrink-0" />
-                      <div className="text-sm">
-                        <p className="font-medium text-warning-foreground mb-1">🔒 API Key Security Notice</p>
-                        <p className="text-muted-foreground">
-                          For secure API key storage, consider connecting to Supabase. 
-                          Current method stores the key in browser localStorage.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="apiKey">Groq API Key</Label>
-                    <Input
-                      id="apiKey"
-                      type="password"
-                      placeholder="gsk_..."
-                      value={projectData.apiKey}
-                      onChange={(e) => setProjectData(prev => ({ ...prev, apiKey: e.target.value }))}
-                    />
-                  </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="name">Project Name</Label>
                     <Input
@@ -448,7 +423,7 @@ Make it visually appealing with proper markdown formatting, emojis, and clear se
               <Button
                 onClick={generateReadme}
                 disabled={isGenerating}
-                className="hero"
+                variant="hero"
                 size="lg"
               >
                 {isGenerating ? (
