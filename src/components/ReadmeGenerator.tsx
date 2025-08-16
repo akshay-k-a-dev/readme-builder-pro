@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Copy, Download, Sparkles, FileText, Code, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -43,6 +44,19 @@ const ReadmeGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentTech, setCurrentTech] = useState("");
   const [currentFeature, setCurrentFeature] = useState("");
+  
+  const licenses = [
+    "MIT",
+    "Apache-2.0", 
+    "GPL-3.0",
+    "BSD-3-Clause",
+    "ISC",
+    "LGPL-2.1",
+    "MPL-2.0",
+    "AGPL-3.0",
+    "Unlicense",
+    "Proprietary"
+  ];
   
   const { toast } = useToast();
 
@@ -242,6 +256,19 @@ Make it visually appealing with proper markdown formatting, emojis, and clear se
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-4">
+                    <div className="flex items-start gap-2">
+                      <div className="h-4 w-4 bg-warning rounded-full mt-0.5 flex-shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-medium text-warning-foreground mb-1">🔒 API Key Security Notice</p>
+                        <p className="text-muted-foreground">
+                          For secure API key storage, consider connecting to Supabase. 
+                          Current method stores the key in browser localStorage.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="apiKey">Groq API Key</Label>
                     <Input
@@ -285,12 +312,18 @@ Make it visually appealing with proper markdown formatting, emojis, and clear se
 
                   <div className="space-y-2">
                     <Label htmlFor="license">License</Label>
-                    <Input
-                      id="license"
-                      placeholder="MIT"
-                      value={projectData.license}
-                      onChange={(e) => setProjectData(prev => ({ ...prev, license: e.target.value }))}
-                    />
+                    <Select value={projectData.license} onValueChange={(value) => setProjectData(prev => ({ ...prev, license: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a license" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {licenses.map((license) => (
+                          <SelectItem key={license} value={license}>
+                            {license}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </CardContent>
               </Card>
